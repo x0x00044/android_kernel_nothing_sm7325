@@ -865,6 +865,10 @@ static int _sde_connector_update_dirty_properties(
 			_sde_connector_update_power_locked(c_conn);
 			mutex_unlock(&c_conn->lock);
 			break;
+		case CONNECTOR_PROP_BL_SCALE:
+		case CONNECTOR_PROP_SV_BL_SCALE:
+			_sde_connector_update_bl_scale(c_conn);
+			break;
 		case CONNECTOR_PROP_HDR_METADATA:
 			_sde_connector_update_hdr_metadata(c_conn, c_state);
 			break;
@@ -2757,7 +2761,7 @@ int sde_connector_set_blob_data(struct drm_connector *conn,
 		return -EINVAL;
 	}
 
-	info = vzalloc(sizeof(*info));
+	info = kzalloc(sizeof(*info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
 
@@ -2815,7 +2819,7 @@ int sde_connector_set_blob_data(struct drm_connector *conn,
 			SDE_KMS_INFO_DATALEN(info),
 			prop_id);
 exit:
-	vfree(info);
+	kfree(info);
 
 	return rc;
 }
